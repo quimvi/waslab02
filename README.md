@@ -2,6 +2,6 @@
 
 Students:
 
-* Surname_1, First_name_1
+* Torrente, Rubén
 
-* Surname_2, First_name_2
+* Baget, Quim
