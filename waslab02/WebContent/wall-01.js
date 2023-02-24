@@ -55,8 +55,6 @@ function deleteHandler(tweetID) {
 
 	 */	
 	var uri = tweetsURI+"/"+tweetID;
-	console.log(uri)
-	// e.g. to like tweet #6 we call http://localhost:8080/waslab02/tweets/6/like
 
 	req = new XMLHttpRequest();
 	req.open('DELETE', uri, /*async*/true);
@@ -65,7 +63,7 @@ function deleteHandler(tweetID) {
 			document.getElementById("tweet_"+tweetID).remove();
 		}
 	};
-	req.send();
+	req.send(JSON.stringify({ deleteToken: localStorage.getItem(tweetID)}));
 }
 
 function getTweetHTML(tweet, action) {  // action :== "like" xor "delete"
