@@ -63,10 +63,14 @@ function getTweets() {
 	req.onload = function() {
 		if (req.status == 200) { // 200 OK
 			var tweet_list = req.responseText;
+			const HTML = JSON.parse(tweet_list).map(tweet => {
+				const parsedTweet = getTweetHTML(tweet, "like");
+				return parsedTweet;
+			})
 			/*
 			 * TASK #2 -->
 			 */
-			document.getElementById("tweet_list").innerHTML = tweet_list;
+			document.getElementById("tweet_list").innerHTML = HTML;
 		}
 	};
 	req.send(null); 
