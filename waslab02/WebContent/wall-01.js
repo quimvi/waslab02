@@ -82,7 +82,10 @@ function getTweets() {
 		if (req.status == 200) { // 200 OK
 			var tweet_list = req.responseText;
 			const HTML = JSON.parse(tweet_list).map(tweet => {
-				const parsedTweet = getTweetHTML(tweet, "like");
+				const tweetId = tweet.id;
+				const isTweetStored = !!localStorage.getItem(tweetId);
+				const button = isTweetStored ? 'delete' : 'like';
+				const parsedTweet = getTweetHTML(tweet, button);
 				return parsedTweet;
 			})
 			/*
@@ -106,10 +109,10 @@ function tweetHandler() {
 	req.onload = function() {
 		if (req.status == 200) { // 200 OK
 			const newTweet = JSON.parse(req.responseText);
-			console.log(newTweet)
+			localStorage.setItem(newTweet.id, newTweet?.deleteToken);
 			const parsedNewTweet = getTweetHTML(newTweet, "delete");
+			
 			document.getElementById("tweet_list").innerHTML = [parsedNewTweet].concat(document.getElementById("tweet_list").innerHTML);
-			// document.getElementById(target).getElementsByClassName("numlikes")[0].innerHTML = req.responseText;
 		}
 	};
 	req.setRequestHeader("Content-Type", "application/json")
