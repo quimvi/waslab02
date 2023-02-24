@@ -33,13 +33,18 @@ function likeHandler(tweetID) {
 	// e.g. to like tweet #6 we call http://localhost:8080/waslab02/tweets/6/like
 
 	req = new XMLHttpRequest();
-	req.open('POST', uri, /*async*/true);
-	req.onload = function() { 
+	req.open('POST', tweetsURI, /*async*/true);
+	req.onload = function() {
 		if (req.status == 200) { // 200 OK
-			document.getElementById(target).getElementsByClassName("numlikes")[0].innerHTML = req.responseText;
+			const newTweet = JSON.parse(req.responseText);
+			console.log(newTweet)
+			const parsedNewTweet = getTweetHTML(newTweet, "delete");
+			document.getElementById("tweet_list").innerHTML = [parsedNewTweet].concat(document.getElementById("tweet_list").innerHTML);
+			// document.getElementById(target).getElementsByClassName("numlikes")[0].innerHTML = req.responseText;
 		}
 	};
-	req.send(/*no params*/null);
+	req.setRequestHeader("Content-Type", "application/json")
+	req.send(JSON.stringify({ author: "Ruben", text: "testing testing"}));
 }
 
 function deleteHandler(tweetID) {
@@ -83,6 +88,19 @@ function tweetHandler() {
 	/*
 	 * TASK #3 -->
 	 */
+	req = new XMLHttpRequest();
+	req.open('POST', tweetsURI, /*async*/true);
+	req.onload = function() {
+		if (req.status == 200) { // 200 OK
+			const newTweet = JSON.parse(req.responseText);
+			console.log(newTweet)
+			const parsedNewTweet = getTweetHTML(newTweet, "delete");
+			document.getElementById("tweet_list").innerHTML = [parsedNewTweet].concat(document.getElementById("tweet_list").innerHTML);
+			// document.getElementById(target).getElementsByClassName("numlikes")[0].innerHTML = req.responseText;
+		}
+	};
+	req.setRequestHeader("Content-Type", "application/json")
+	req.send(JSON.stringify({ author: author, text: text}));
 	var mes1 = "Someone ({0}) wants to insert a new tweet ('{1}'),\n but this feature is not implemented yet!";
 	alert(mes1.format(author, text));
 
