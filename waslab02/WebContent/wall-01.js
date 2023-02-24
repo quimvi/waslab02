@@ -48,11 +48,24 @@ function likeHandler(tweetID) {
 }
 
 function deleteHandler(tweetID) {
+	console.log("delete client");
 	/*
 
 	 * TASK #4 
 
 	 */	
+	var uri = tweetsURI+"/"+tweetID;
+	console.log(uri)
+	// e.g. to like tweet #6 we call http://localhost:8080/waslab02/tweets/6/like
+
+	req = new XMLHttpRequest();
+	req.open('DELETE', uri, /*async*/true);
+	req.onload = function() {
+		if (req.status == 200) { // 200 OK
+			document.getElementById("tweet_"+tweetID).remove();
+		}
+	};
+	req.send();
 }
 
 function getTweetHTML(tweet, action) {  // action :== "like" xor "delete"
