@@ -108,6 +108,7 @@ function tweetHandler() {
 		if (req.status == 200) { // 200 OK
 			const newTweet = JSON.parse(req.responseText);
 			localStorage.setItem(newTweet.id, newTweet?.deleteToken);
+			console.log(newTweet.deleteToken);
 			const parsedNewTweet = getTweetHTML(newTweet, "delete");
 			
 			document.getElementById("tweet_list").innerHTML = [parsedNewTweet].concat(document.getElementById("tweet_list").innerHTML);

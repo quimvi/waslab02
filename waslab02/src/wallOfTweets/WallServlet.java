@@ -1,7 +1,12 @@
 package wallOfTweets;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
@@ -14,13 +19,41 @@ import com.google.appengine.repackaged.org.json.JSONArray;
 import com.google.appengine.repackaged.org.json.JSONException;
 import com.google.appengine.repackaged.org.json.JSONObject;
 
-
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
 
 @SuppressWarnings("serial")
 @WebServlet(urlPatterns = {"/tweets", "/tweets/*"})
 public class WallServlet extends HttpServlet {
 
 	private String TWEETS_URI = "/waslab02/tweets/";
+	Cipher desCipher;
+	KeyGenerator keygenerator;
+	SecretKey myDesKey;
+	private Map<String, String> deletionTokens = new HashMap<String, String>();
+	
+	public WallServlet() throws NoSuchPaddingException {
+		super();
+		// TODO Auto-generated constructor stub
+
+		try {
+			keygenerator = KeyGenerator.getInstance("DES");
+		    myDesKey = keygenerator.generateKey();
+		    
+		    // Creating object of Cipher
+            desCipher = Cipher.getInstance("DES");
+
+           
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 
 	@Override
 	// Implements GET http://localhost:8080/waslab02/tweets
@@ -69,9 +102,16 @@ public class WallServlet extends HttpServlet {
 				String text = test.getString("text");
 				Tweet tweet = Database.insertTweet(author, text);
 				JSONObject newTweet = new JSONObject(tweet);
+				desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
+				String tweetId = Long.toString(tweet.getId());
+	            byte[] tweetIdEncrypted = desCipher.doFinal(tweetId.getBytes("UTF8"));
+	            String tweetIdEncryptedString = Base64.getEncoder().encodeToString(tweetIdEncrypted);
+	            newTweet.append("deleteToken", tweetIdEncryptedString );
 				String tweetResponse = newTweet.toString();
+				 //we have to send here in the response the deletion token
+				
 				resp.getWriter().println(tweetResponse);
-			} catch (JSONException e) {
+			} catch (JSONException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 				e.printStackTrace();
 			}
 		}
@@ -81,16 +121,13 @@ public class WallServlet extends HttpServlet {
 	// Implements DELETE http://localhost:8080/waslab02/tweets/:id
 	public void doDelete(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
-		System.out.println("delete server");
-
 				String uri = req.getRequestURI();
 				System.out.println(uri);
 				int lastIndex = uri.lastIndexOf("/");
-				long id = Long.valueOf(uri.substring(lastIndex+1, uri.length()));		
+				long id = Long.valueOf(uri.substring(lastIndex+1, uri.length()));	
+				// check here that the deleteToken sent matches with he delete token of the tweet id 
 				System.out.println(id);
 				Database.deleteTweet(id);
-			
-		
 	}
 
 }
