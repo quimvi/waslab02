@@ -105,7 +105,9 @@ public class WallServlet extends HttpServlet {
 				desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
 				String tweetId = Long.toString(tweet.getId());
 	            byte[] tweetIdEncrypted = desCipher.doFinal(tweetId.getBytes("UTF8"));
+	            
 	            String tweetIdEncryptedString = Base64.getEncoder().encodeToString(tweetIdEncrypted);
+	            deletionTokens.put(tweetId, tweetIdEncryptedString);
 	            newTweet.append("deleteToken", tweetIdEncryptedString );
 				String tweetResponse = newTweet.toString();
 				 //we have to send here in the response the deletion token
@@ -122,12 +124,31 @@ public class WallServlet extends HttpServlet {
 	public void doDelete(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException, ServletException {
 				String uri = req.getRequestURI();
-				System.out.println(uri);
+				System.out.println(req.getHeader("deleteToken"));
 				int lastIndex = uri.lastIndexOf("/");
-				long id = Long.valueOf(uri.substring(lastIndex+1, uri.length()));	
+				String tweetId = uri.substring(lastIndex+1, uri.length());
+				long id = Long.valueOf(tweetId);	
 				// check here that the deleteToken sent matches with he delete token of the tweet id 
-				System.out.println(id);
-				Database.deleteTweet(id);
+
+				byte[] decryptedTweetToken = null;
+				boolean isTokenCorrect = false;
+				try {
+					desCipher.init(Cipher.DECRYPT_MODE, myDesKey);
+					 decryptedTweetToken
+		                = desCipher.doFinal(Base64.getDecoder().decode(req.getHeader("deleteToken")));
+			            String decryptedTweetId = new String(decryptedTweetToken);
+			            System.out.println(decryptedTweetId);
+			            isTokenCorrect =  tweetId.contentEquals(decryptedTweetId);
+				} catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				if (isTokenCorrect) {
+					Database.deleteTweet(id);
+				} else {
+					System.out.println("no correcte");
+				}
 	}
 
 }

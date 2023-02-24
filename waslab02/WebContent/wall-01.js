@@ -63,7 +63,9 @@ function deleteHandler(tweetID) {
 			document.getElementById("tweet_"+tweetID).remove();
 		}
 	};
-	req.send(JSON.stringify({ deleteToken: localStorage.getItem(tweetID)}));
+	console.log("Delete Token: " + localStorage.getItem(tweetID));
+	req.setRequestHeader("deleteToken", localStorage.getItem(tweetID));
+	req.send();
 }
 
 function getTweetHTML(tweet, action) {  // action :== "like" xor "delete"
