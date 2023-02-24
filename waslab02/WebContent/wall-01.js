@@ -114,8 +114,6 @@ function tweetHandler() {
 	};
 	req.setRequestHeader("Content-Type", "application/json")
 	req.send(JSON.stringify({ author: author, text: text}));
-	var mes1 = "Someone ({0}) wants to insert a new tweet ('{1}'),\n but this feature is not implemented yet!";
-	alert(mes1.format(author, text));
 
 	// clear form fields
 	document.getElementById("tweet_author").value = "";
